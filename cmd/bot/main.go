@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/rheola/ozon-bot/internal/service/product"
 	"log"
 	"os"
 
@@ -26,10 +27,9 @@ func main() {
 		Timeout: 60,
 	}
 
-	///u := tgbotapi.NewUpdate(0)
-	//u.Timeout = 60
-
 	updates := bot.GetUpdatesChan(uc)
+
+	productService := product.NewService()
 
 	for update := range updates {
 		if update.Message == nil {
@@ -40,7 +40,7 @@ func main() {
 		case "help":
 			helpCommand(bot, update.Message)
 		case "list":
-			listCommand(bot, update.Message)
+			listCommand(bot, update.Message, productService)
 		default:
 			defaultBehavior(bot, update.Message)
 		}
@@ -55,8 +55,15 @@ func helpCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
 	bot.Send(msg)
 }
 
-func listCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "To be done")
+func listCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message, productService *product.Service) {
+	outputMsgTxt := "Here all the products: \n\n"
+
+	products := productService.List()
+	for _, p := range products {
+		outputMsgTxt += p.Title
+		outputMsgTxt += "\n"
+	}
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, outputMsgTxt)
 
 	bot.Send(msg)
 }

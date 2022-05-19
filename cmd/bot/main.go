@@ -24,27 +24,14 @@ func main() {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
+	productService := product.NewService()
+	commander := commands.NewCommander(bot, productService)
+
 	uc := tgbotapi.UpdateConfig{
 		Timeout: 60,
 	}
-
 	updates := bot.GetUpdatesChan(uc)
-
-	productService := product.NewService()
-
-	commander := commands.NewCommander(bot, productService)
 	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		switch update.Message.Command() {
-		case "help":
-			commander.Help(update.Message)
-		case "list":
-			commander.List(update.Message)
-		default:
-			commander.Default(update.Message)
-		}
+		commander.HandleUpdate(update)
 	}
 }

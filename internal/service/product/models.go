@@ -1,6 +1,7 @@
 package product
 
 var allProducts = []Product{
+	{Title: "zero"},
 	{Title: "one"},
 	{Title: "two"},
 	{Title: "three"},
